@@ -13,12 +13,14 @@ export function DateField({
   value,
   onChange,
   error,
+  hint,
 }: {
   label: string;
   /** ISO `yyyy-MM-dd`. */
   value: string;
   onChange: (next: string) => void;
   error?: string;
+  hint?: string;
 }) {
   const colors = useTheme();
   const [isOpen, setIsOpen] = useState(Platform.OS === 'ios');
@@ -80,6 +82,8 @@ export function DateField({
         <Text selectable style={{ color: colors.danger, fontSize: 13 }}>
           {error}
         </Text>
+      ) : hint ? (
+        <Text style={{ color: colors.textSecondary, fontSize: 13 }}>{hint}</Text>
       ) : null}
     </View>
   );

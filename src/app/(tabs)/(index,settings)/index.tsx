@@ -1,9 +1,18 @@
 import { Link } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useMemo } from 'react';
-import { ActivityIndicator, Alert, RefreshControl, SectionList, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  RefreshControl,
+  SectionList,
+  Text,
+  View,
+} from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
+import { PlusIcon } from '@/components/plus-icon';
 import { PurchaseCard } from '@/components/purchase-row';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useDeletePurchase, usePurchases } from '@/features/purchases/queries';
@@ -57,8 +66,14 @@ export default function WarrantiesScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <Link href="/new-purchase">
-              <Text style={{ color: colors.tint, fontSize: 17, fontWeight: '600' }}>Add</Text>
+            <Link href="/new-purchase" asChild>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Add purchase"
+                hitSlop={12}
+                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}>
+                <PlusIcon color={colors.tint} />
+              </Pressable>
             </Link>
           ),
           headerSearchBarOptions: {

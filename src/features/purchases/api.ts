@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import type { PurchaseRow } from '@/lib/database.types';
 import type { PurchaseFormOutput } from '@/features/purchases/schema';
 import { computeWarrantyEnd } from '@/features/purchases/warranty';
+import { removeReceiptFiles } from '@/features/receipts/api';
 
 function toRow(values: PurchaseFormOutput) {
   return {
@@ -60,6 +61,11 @@ export async function updatePurchase(
 }
 
 export async function deletePurchase(id: string): Promise<void> {
+  // Deleting the purchase cascades to its `receipts` rows, but storage objects
+  // are outside Postgres, so they have to go first or they are orphaned with
+  // nothing left pointing at their paths.
+  await removeReceiptFiles(id);
+
   const { error } = await supabase.from('purchases').delete().eq('id', id);
   if (error) throw error;
 }

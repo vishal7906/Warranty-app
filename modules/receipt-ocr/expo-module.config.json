@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["ReceiptOcrModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.receiptocr.ReceiptOcrModule"]
+  }
+}

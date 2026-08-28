@@ -48,6 +48,15 @@ function RootNavigator() {
             sheetGrabberVisible: true,
           }}
         />
+        <Stack.Screen
+          name="receipt/[id]"
+          options={{
+            presentation: 'modal',
+            headerShown: true,
+            title: 'Receipt',
+            sheetGrabberVisible: true,
+          }}
+        />
       </Stack.Protected>
 
       <Stack.Protected guard={!session}>

@@ -1,16 +1,25 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+import { useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, Text, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Card, DetailRow } from '@/components/detail-row';
 import { EmptyState } from '@/components/empty-state';
+import { ReceiptGallery } from '@/components/receipt-gallery';
+import { ReceiptSourceSheet } from '@/components/receipt-source-sheet';
 import { WarrantyBadge } from '@/components/warranty-badge';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { formatDate, formatMoney, formatWarrantyDuration } from '@/features/purchases/format';
 import { useDeletePurchase, usePurchase } from '@/features/purchases/queries';
 import { describeRemaining, getWarrantyInfo } from '@/features/purchases/warranty';
+import {
+  useDeleteReceipt,
+  useReceipts,
+  useUploadReceipt,
+} from '@/features/receipts/queries';
 import { useTheme } from '@/hooks/use-theme';
+import type { ReceiptRow } from '@/lib/database.types';
 
 export default function PurchaseDetailScreen() {
   const colors = useTheme();
@@ -18,6 +27,11 @@ export default function PurchaseDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: purchase, isLoading, error } = usePurchase(id);
   const remove = useDeletePurchase();
+
+  const { data: receipts, isLoading: receiptsLoading } = useReceipts(id);
+  const upload = useUploadReceipt(id);
+  const removeReceipt = useDeleteReceipt(id);
+  const [sourceVisible, setSourceVisible] = useState(false);
 
   if (isLoading) {
     return (
@@ -44,12 +58,34 @@ export default function PurchaseDetailScreen() {
   const info = getWarrantyInfo(purchase);
 
   function confirmDelete() {
-    Alert.alert('Delete purchase?', 'This cannot be undone.', [
+    const receiptNote = receipts?.length
+      ? ` Its ${receipts.length === 1 ? 'receipt is' : `${receipts.length} receipts are`} deleted too.`
+      : '';
+
+    Alert.alert('Delete purchase?', `This cannot be undone.${receiptNote}`, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
         style: 'destructive',
         onPress: () => remove.mutate(id, { onSuccess: () => router.back() }),
+      },
+    ]);
+  }
+
+  function confirmDeleteReceipt(receipt: ReceiptRow) {
+    Alert.alert('Delete receipt?', 'The file is removed from storage too.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () =>
+          removeReceipt.mutate(receipt, {
+            onError: (cause) =>
+              Alert.alert(
+                'Could not delete',
+                cause instanceof Error ? cause.message : 'Please try again.'
+              ),
+          }),
       },
     ]);
   }
@@ -111,6 +147,14 @@ export default function PurchaseDetailScreen() {
           </Card>
         ) : null}
 
+        <ReceiptGallery
+          receipts={receipts ?? []}
+          isLoading={receiptsLoading}
+          isUploading={upload.isPending}
+          onAdd={() => setSourceVisible(true)}
+          onDelete={confirmDeleteReceipt}
+        />
+
         <Button
           title="Delete Purchase"
           variant="destructive"
@@ -118,6 +162,20 @@ export default function PurchaseDetailScreen() {
           loading={remove.isPending}
         />
       </ScrollView>
+
+      <ReceiptSourceSheet
+        visible={sourceVisible}
+        onClose={() => setSourceVisible(false)}
+        onPicked={(file) =>
+          upload.mutate(file, {
+            onError: (cause) =>
+              Alert.alert(
+                'Upload failed',
+                cause instanceof Error ? cause.message : 'Please try again.'
+              ),
+          })
+        }
+      />
     </>
   );
 }

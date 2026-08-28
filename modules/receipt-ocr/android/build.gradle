@@ -1,0 +1,25 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'expo.modules.receiptocr'
+version = '0.1.0'
+
+android {
+  namespace "expo.modules.receiptocr"
+  defaultConfig {
+    versionCode 1
+    versionName "0.1.0"
+  }
+  lintOptions {
+    abortOnError false
+  }
+}
+
+dependencies {
+  // Bundled on-device Latin text recognition. This ships the model inside the
+  // app (~4 MB) rather than depending on Google Play Services downloading it,
+  // so the first scan works offline and without a delay.
+  implementation 'com.google.mlkit:text-recognition:16.0.1'
+}

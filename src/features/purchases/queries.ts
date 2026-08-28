@@ -8,6 +8,7 @@ import {
   updatePurchase,
 } from '@/features/purchases/api';
 import type { PurchaseFormOutput } from '@/features/purchases/schema';
+import { receiptKeys } from '@/features/receipts/queries';
 
 export const purchaseKeys = {
   all: ['purchases'] as const,
@@ -47,6 +48,10 @@ export function useDeletePurchase() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deletePurchase(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: purchaseKeys.all }),
+    // Deleting a purchase takes its receipts with it, so both caches are stale.
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: purchaseKeys.all });
+      queryClient.invalidateQueries({ queryKey: receiptKeys.all });
+    },
   });
 }

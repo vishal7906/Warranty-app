@@ -52,6 +52,15 @@ export type ProfileRow = {
   created_at: string;
 };
 
+export type DevicePushTokenRow = {
+  id: string;
+  user_id: string;
+  token: string;
+  platform: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -79,8 +88,19 @@ export type Database = {
         Update: Partial<ReminderRow>;
         Relationships: [];
       };
+      device_push_tokens: {
+        Row: DevicePushTokenRow;
+        Insert: Omit<DevicePushTokenRow, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<DevicePushTokenRow>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      upsert_push_token: {
+        Args: { p_token: string; p_platform: string };
+        Returns: undefined;
+      };
+    };
   };
 };

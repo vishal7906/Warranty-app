@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "60912737594",
+    "project_id": "warranty-app-400f5",
+    "storage_bucket": "warranty-app-400f5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:60912737594:android:dc8ddb965aa7749cf6c403",
+        "android_client_info": {
+          "package_name": "com.example.warrantymanager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDauT9BCCY-xo8OiRD21UdB3je_s3tS9to"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

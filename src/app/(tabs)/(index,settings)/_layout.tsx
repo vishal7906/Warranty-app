@@ -37,7 +37,11 @@ export default function SharedStackLayout({ segment }: { segment: string }) {
       }}>
       <Stack.Screen
         name={screen === 'settings' ? 'settings' : 'index'}
-        options={{ title: TITLES[screen] }}
+        options={
+          screen === 'settings'
+            ? { title: TITLES[screen] }
+            : { headerShown: false }
+        }
       />
       <Stack.Screen name="purchase/[id]" options={{ headerLargeTitle: false, title: '' }} />
     </Stack>

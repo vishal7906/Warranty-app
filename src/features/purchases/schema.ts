@@ -50,8 +50,26 @@ export const emptyPurchaseForm = (today: string): PurchaseFormValues => ({
   notes: null,
 });
 
-/** Shape returned by the receipt-extraction AI in V2; kept here so the manual
- *  form and the OCR pipeline agree on one contract from the start. */
-export const extractedReceiptSchema = purchaseFormSchema.partial().extend({
-  productName: z.string().optional(),
+/**
+ * Shape returned by the receipt-extraction AI; kept here so the manual form
+ * and the extraction pipeline agree on one contract. Defined independently of
+ * `purchaseFormSchema` rather than via `.partial()` — the AI may not find a
+ * value for any field (including `product_name`, which the form requires),
+ * so every field here is optional and nullable rather than inheriting the
+ * form's required-ness and stricter formatting rules.
+ */
+export const extractedReceiptSchema = z.object({
+  product_name: z.string().trim().optional().nullable(),
+  brand: z.string().trim().optional().nullable(),
+  price: z.number().nonnegative().optional().nullable(),
+  currency: z.string().trim().length(3).optional().nullable(),
+  purchase_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional()
+    .nullable(),
+  seller: z.string().trim().optional().nullable(),
+  warranty_months: z.number().int().min(0).max(600).optional().nullable(),
+  invoice_number: z.string().trim().optional().nullable(),
+  serial_number: z.string().trim().optional().nullable(),
 });

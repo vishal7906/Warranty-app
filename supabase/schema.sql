@@ -86,6 +86,53 @@ create table if not exists public.reminders (
 
 create index if not exists reminders_due_idx on public.reminders (reminder_date, is_sent);
 
+-- One warranty-expiry push per purchase per day, so the daily notification
+-- job can upsert with `on conflict do nothing` and stay safe to re-run.
+create unique index if not exists reminders_purchase_date_type_uidx
+  on public.reminders (purchase_id, reminder_date, reminder_type);
+
+-- ------------------------------------------------------- device_push_tokens --
+create table if not exists public.device_push_tokens (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users on delete cascade,
+  -- An Expo push token identifies a device+install, not an account, so it's
+  -- globally unique — see upsert_push_token() below for reassignment.
+  token text not null unique,
+  platform text not null default 'unknown',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists device_push_tokens_user_id_idx
+  on public.device_push_tokens (user_id);
+
+-- Registers/reassigns a push token to the calling user. A plain client-side
+-- upsert can't do this under RLS when the token already belongs to a
+-- different account (e.g. a shared device signed into a new account) since
+-- the pre-image row's user_id isn't the caller's. This function always
+-- writes auth.uid() as the owner, so it's safe to run as security definer.
+create or replace function public.upsert_push_token(p_token text, p_platform text default 'unknown')
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+
+  insert into public.device_push_tokens (user_id, token, platform)
+  values (auth.uid(), p_token, p_platform)
+  on conflict (token) do update
+    set user_id = excluded.user_id,
+        platform = excluded.platform,
+        updated_at = now();
+end;
+$$;
+
+grant execute on function public.upsert_push_token(text, text) to authenticated;
+
 -- -------------------------------------------------------------- updated_at --
 create or replace function public.touch_updated_at()
 returns trigger
@@ -103,10 +150,11 @@ create trigger purchases_touch_updated_at
   for each row execute function public.touch_updated_at();
 
 -- --------------------------------------------------------- row level security
-alter table public.profiles  enable row level security;
-alter table public.purchases enable row level security;
-alter table public.receipts  enable row level security;
-alter table public.reminders enable row level security;
+alter table public.profiles          enable row level security;
+alter table public.purchases         enable row level security;
+alter table public.receipts          enable row level security;
+alter table public.reminders         enable row level security;
+alter table public.device_push_tokens enable row level security;
 
 drop policy if exists "own profile" on public.profiles;
 create policy "own profile" on public.profiles
@@ -122,6 +170,10 @@ create policy "own receipts" on public.receipts
 
 drop policy if exists "own reminders" on public.reminders;
 create policy "own reminders" on public.reminders
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+drop policy if exists "own device push tokens" on public.device_push_tokens;
+create policy "own device push tokens" on public.device_push_tokens
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ----------------------------------------------------------------- storage --

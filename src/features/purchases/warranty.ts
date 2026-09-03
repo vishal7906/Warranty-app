@@ -66,6 +66,24 @@ export const WARRANTY_SECTION_ORDER: WarrantyStatus[] = [
   'expired',
 ];
 
+/**
+ * The purchases whose warranty runs out soonest, nearest first. Lapsed
+ * warranties and purchases without one are left out — there is nothing left
+ * to count down to.
+ */
+export function selectExpiringSoon<T extends Pick<PurchaseRow, 'warranty_end'>>(
+  purchases: T[],
+  limit = 5,
+  now: Date = new Date()
+): T[] {
+  return purchases
+    .map((purchase) => ({ purchase, daysRemaining: getWarrantyInfo(purchase, now).daysRemaining }))
+    .filter((entry): entry is { purchase: T; daysRemaining: number } => (entry.daysRemaining ?? -1) >= 0)
+    .sort((a, b) => a.daysRemaining - b.daysRemaining)
+    .slice(0, limit)
+    .map((entry) => entry.purchase);
+}
+
 export function describeRemaining(info: WarrantyInfo): string {
   if (info.status === 'none' || info.daysRemaining === null) return 'No warranty recorded';
   if (info.daysRemaining < 0) return `Expired ${Math.abs(info.daysRemaining)} days ago`;

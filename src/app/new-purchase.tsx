@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 
 import { Button } from '@/components/button';
+import { CategoryField } from '@/components/category-field';
 import { DateField } from '@/components/date-field';
 import { ExtractionSummary } from '@/components/extraction-summary';
 import { FormField } from '@/components/form-field';
@@ -320,12 +321,7 @@ function ManualForm({
           placeholder="Samsung"
           hint={scannedHint('brand')}
         />
-        <FormField
-          label="Category"
-          value={values.category ?? ''}
-          onChangeText={(text) => set('category', text)}
-          placeholder="Electronics"
-        />
+        <CategoryField value={values.category ?? null} onChange={(category) => set('category', category)} />
 
         <View style={{ flexDirection: 'row', gap: Spacing.three }}>
           <View style={{ flex: 2 }}>

@@ -1,11 +1,12 @@
 import { Text, View } from 'react-native';
 
 import { Radius, Spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/theme';
 import { WARRANTY_STATUS_LABEL, type WarrantyStatus } from '@/features/purchases/warranty';
 import { useTheme } from '@/hooks/use-theme';
 
-export function useWarrantyColor(status: WarrantyStatus): string {
-  const colors = useTheme();
+/** Pure lookup, for call sites that already have `colors` and are mapping over a list. */
+export function warrantyColor(status: WarrantyStatus, colors: ThemeColors): string {
   switch (status) {
     case 'expired':
       return colors.neutral;
@@ -18,6 +19,11 @@ export function useWarrantyColor(status: WarrantyStatus): string {
     default:
       return colors.neutral;
   }
+}
+
+export function useWarrantyColor(status: WarrantyStatus): string {
+  const colors = useTheme();
+  return warrantyColor(status, colors);
 }
 
 export function WarrantyDot({ status }: { status: WarrantyStatus }) {

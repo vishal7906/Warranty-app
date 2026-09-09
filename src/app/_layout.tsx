@@ -1,20 +1,20 @@
 // Registers the background push-notification task; must be imported for its
 // side effects before the app finishes loading, so this stays the first
 // import in the app's earliest-evaluated module.
-import '@/features/notifications/background-task';
+import "@/features/notifications/background-task";
 
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import { Stack } from 'expo-router/stack';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { DarkTheme, DefaultTheme, ThemeProvider } from "expo-router";
+import { Stack } from "expo-router/stack";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+import { useColorScheme } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-import { SetupRequired } from '@/components/setup-required';
-import { isSupabaseConfigured } from '@/lib/env';
-import { AuthProvider, useAuth } from '@/providers/auth-provider';
-import { NotificationsProvider } from '@/providers/notifications-provider';
-import { QueryProvider } from '@/providers/query-provider';
+import { SetupRequired } from "@/components/setup-required";
+import { isSupabaseConfigured } from "@/lib/env";
+import { AuthProvider, useAuth } from "@/providers/auth-provider";
+import { NotificationsProvider } from "@/providers/notifications-provider";
+import { QueryProvider } from "@/providers/query-provider";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -23,7 +23,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <QueryProvider>
           <AuthProvider>
             <NotificationsProvider>
@@ -51,20 +51,11 @@ function RootNavigator() {
       <Stack.Protected guard={Boolean(session)}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen
-          name="new-purchase"
-          options={{
-            presentation: 'modal',
-            headerShown: true,
-            title: 'Add Purchase',
-            sheetGrabberVisible: true,
-          }}
-        />
-        <Stack.Screen
           name="receipt/[id]"
           options={{
-            presentation: 'modal',
+            presentation: "modal",
             headerShown: true,
-            title: 'Receipt',
+            title: "Receipt",
             sheetGrabberVisible: true,
           }}
         />
@@ -72,7 +63,7 @@ function RootNavigator() {
 
       <Stack.Protected guard={!session}>
         <Stack.Screen name="sign-in" />
-        <Stack.Screen name="sign-up" options={{ headerShown: true, title: 'Create Account' }} />
+        <Stack.Screen name="sign-up" options={{ headerShown: true, title: "Create Account" }} />
       </Stack.Protected>
     </Stack>
   );

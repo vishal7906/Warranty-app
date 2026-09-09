@@ -13,7 +13,7 @@ function formatBytes(bytes: number | null): string | null {
 }
 
 /**
- * The receipt chosen on the previous step, shown at the top of the new-purchase
+ * The receipt chosen on a previous step, shown at the top of the purchase
  * form. It is still a local file here — nothing is uploaded until the purchase
  * row exists to attach it to.
  */

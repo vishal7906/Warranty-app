@@ -21,35 +21,39 @@ export function PurchaseCard({
   return (
     <Link href={{ pathname: '/purchase/[id]', params: { id: purchase.id } }} asChild>
       <Link.Trigger>
-        <Pressable
-          style={({ pressed }) => ({
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: Spacing.three,
-            padding: Spacing.three,
-            backgroundColor: colors.backgroundElement,
-            borderRadius: Radius.card,
-            borderCurve: 'continuous',
-            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
-            opacity: pressed ? 0.7 : 1,
-          })}>
-          <WarrantyDot status={info.status} />
-          <View style={{ flex: 1, gap: Spacing.half }}>
-            <Text numberOfLines={1} style={{ color: colors.text, fontSize: 17, fontWeight: '600' }}>
-              {purchase.product_name}
-            </Text>
-            <Text style={{ color: colors.textSecondary, fontSize: 14 }}>
-              {describeRemaining(info)}
+        {/* iOS's native Link Preview host (from `Link.Preview`/`Link.Menu` below) drops a
+            backgroundColor set directly on this Pressable, so the card chrome lives on the
+            inner View instead — see the identical note in purchase-progress-card.tsx. */}
+        <Pressable style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: Spacing.three,
+              padding: Spacing.three,
+              backgroundColor: colors.backgroundElement,
+              borderRadius: Radius.card,
+              borderCurve: 'continuous',
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+            }}>
+            <WarrantyDot status={info.status} />
+            <View style={{ flex: 1, gap: Spacing.half }}>
+              <Text numberOfLines={1} style={{ color: colors.text, fontSize: 17, fontWeight: '600' }}>
+                {purchase.product_name}
+              </Text>
+              <Text style={{ color: colors.textSecondary, fontSize: 14 }}>
+                {describeRemaining(info)}
+              </Text>
+            </View>
+            <Text
+              style={{
+                color: colors.textSecondary,
+                fontSize: 15,
+                fontVariant: ['tabular-nums'],
+              }}>
+              {formatMoney(purchase.price, purchase.currency)}
             </Text>
           </View>
-          <Text
-            style={{
-              color: colors.textSecondary,
-              fontSize: 15,
-              fontVariant: ['tabular-nums'],
-            }}>
-            {formatMoney(purchase.price, purchase.currency)}
-          </Text>
         </Pressable>
       </Link.Trigger>
       <Link.Preview />

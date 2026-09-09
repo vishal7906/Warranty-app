@@ -44,6 +44,7 @@ export default function SharedStackLayout({ segment }: { segment: string }) {
         }
       />
       <Stack.Screen name="purchase/[id]" options={{ headerLargeTitle: false, title: '' }} />
+      <Stack.Screen name="all-purchases" options={{ headerLargeTitle: false, title: 'All Purchases' }} />
     </Stack>
   );
 }
